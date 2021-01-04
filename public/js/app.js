@@ -2030,7 +2030,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-/* harmony default export */ __webpack_exports__["default"] = ({});
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      users: []
+    };
+  },
+  methods: {
+    getUsers: function getUsers() {
+      var _this = this;
+
+      axios.get("api/users").then(function (response) {
+        _this.users = response.data;
+      });
+    },
+    mounted: function mounted() {
+      this.getUsers();
+    }
+  }
+});
 
 /***/ }),
 
@@ -2075,7 +2100,237 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-/* harmony default export */ __webpack_exports__["default"] = ({});
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      todaytasks: [],
+      upcoming: [],
+      newTask: ""
+    };
+  },
+  created: function created() {
+    this.fetchTodayTask();
+    this.fetchUpcoming();
+  },
+  methods: {
+    //** UPCOMING **//
+    //?Fetching upcoming tasks
+    fetchUpcoming: function fetchUpcoming() {
+      var _this = this;
+
+      fetch("/api/upcoming").then(function (res) {
+        return res.json();
+      }).then(function (_ref) {
+        var data = _ref.data;
+        _this.upcoming = data;
+      })["catch"](function (err) {
+        return console.log(err);
+      });
+    },
+    //?Adding new Upcoming Tasks
+    addUpcomingTask: function addUpcomingTask(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+
+      if (this.upcoming.length > 4) {
+        alert("Please complete the upcoming task");
+      } else {
+        var newTask = {
+          title: this.newTask,
+          waiting: true,
+          taskId: Math.random().toString(36).substring(7)
+        }; //?POST request
+
+        fetch("api/upcoming", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(newTask)
+        }).then(function () {
+          return _this2.upcoming.push(newTask);
+        }); //?Clear task fields
+
+        this.newTask = "";
+      }
+    },
+    //!Deleting Upcoming Tasks
+    delUpcoming: function delUpcoming(taskId) {
+      var _this3 = this;
+
+      if (confirm("Are you sure to delete this upcoming task?")) {
+        fetch("/api/upcoming/".concat(taskId), {
+          method: "DELETE"
+        }).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          _this3.upcoming = _this3.upcoming.filter(function (_ref2) {
+            var id = _ref2.taskId;
+            return id != taskId;
+          });
+        })["catch"](function (error) {
+          return console.error(error);
+        });
+      }
+    },
+    //?Check upcoming task
+    checkUpcoming: function checkUpcoming(taskId) {
+      var _this4 = this;
+
+      if (this.todaytasks.length > 4) {
+        alert("Sorry complete existing task");
+        window.location.href = "/";
+      } else {
+        this.addDailyTask(taskId); //? Delete from this task from db
+
+        fetch("/api/upcoming/".concat(taskId), {
+          method: "DELETE"
+        }).then(function () {
+          return _this4.upcoming = _this4.upcoming.filter(function (_ref3) {
+            var id = _ref3.taskId;
+            return id !== taskId;
+          });
+        });
+      }
+    },
+    //** TODAY'S TASKS **//
+    //?Fetching today tasks
+    fetchTodayTask: function fetchTodayTask() {
+      var _this5 = this;
+
+      fetch("api/dailytask").then(function (response) {
+        return response.json();
+      }).then(function (_ref4) {
+        var data = _ref4.data;
+        _this5.todaytasks = data;
+      })["catch"](function (err) {
+        return console.error(err);
+      });
+    },
+    //?Adding daily tasks
+    addDailyTask: function addDailyTask(taskId) {
+      var _this6 = this;
+
+      //? GET task
+      var task = this.upcoming.filter(function (_ref5) {
+        var id = _ref5.taskId;
+        return id == taskId;
+      })[0]; //?POST request
+
+      fetch("api/dailytask", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify(task)
+      }).then(function () {
+        return _this6.todaytasks.unshift(task);
+      })["catch"](function (error) {
+        return console.error(error);
+      });
+    },
+    //?Update today's tasks
+    updateTodayTasks: function updateTodayTasks(taskId) {
+      var _this7 = this;
+
+      if (confirm("Is this task complete?")) {
+        fetch("/api/dailytask/".concat(taskId), {
+          method: "DELETE"
+        }).then(function () {}).then(function () {
+          return _this7.todaytasks = _this7.todaytasks.filter(function (_ref6) {
+            var id = _ref6.taskId;
+            return id !== taskId;
+          });
+        })["catch"](function (error) {
+          return console.error(error);
+        });
+      }
+    },
+    //?Delete today's task
+    deleteTask: function deleteTask(taskId) {
+      var _this8 = this;
+
+      if (confirm("Are you sure you want to delete?")) {
+        fetch("/api/dailytask/".concat(taskId), {
+          method: "DELETE"
+        }).then(function (response) {
+          return response.json();
+        }).then(function () {
+          return _this8.todaytasks = _this8.todaytasks.filter(function (_ref7) {
+            var id = _ref7.taskId;
+            return id !== taskId;
+          });
+        })["catch"](function (err) {
+          return console.error(err);
+        });
+      }
+    }
+  }
+});
 
 /***/ }),
 
@@ -37733,14 +37988,6 @@ var staticRenderFns = [
       _c("img", { attrs: { src: __webpack_require__(/*! ../images/hamburger.png */ "./resources/js/images/hamburger.png") } }),
       _vm._v(" "),
       _c("div", { staticClass: "profile" }, [
-        _c("h1", [
-          _c(
-            "a",
-            { attrs: { href: "https://www.youtube.com/watch?v=sH75VEfQKSc" } },
-            [_vm._v("\n        Mao ni tutorial")]
-          )
-        ]),
-        _vm._v(" "),
         _c("h1", [_vm._v("Hi User")]),
         _vm._v(" "),
         _c("h2", [_vm._v("Let's make project more amazing")])
@@ -37753,54 +38000,68 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "project" }, [
-        _c("div", { staticClass: "a-project" }, [
-          _c("div", { staticClass: "box-color" }, [
-            _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
-            _vm._v(" "),
-            _c("span", [_vm._v("PT")])
-          ]),
-          _vm._v(" "),
-          _c("h6", [_vm._v("Development")])
-        ]),
+        _c("h3", [_vm._v("Projects"), _c("span", [_vm._v("(18)")])]),
         _vm._v(" "),
-        _c("div", { staticClass: "a-project" }, [
-          _c("div", { staticClass: "box-color" }, [
-            _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+        _c("div", { staticClass: "projects" }, [
+          _c("div", { staticClass: "a-project" }, [
+            _c("div", { staticClass: "box-color" }, [
+              _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+              _vm._v(" "),
+              _c("span", [_vm._v("PT")])
+            ]),
             _vm._v(" "),
-            _c("span", [_vm._v("PT")])
+            _c("h6", [_vm._v("Development")])
           ]),
           _vm._v(" "),
-          _c("h6", [_vm._v("Design")])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "a-project" }, [
-          _c("div", { staticClass: "box-color" }, [
-            _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+          _c("div", { staticClass: "a-project" }, [
+            _c("div", { staticClass: "box-color" }, [
+              _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+              _vm._v(" "),
+              _c("span", [_vm._v("PT")])
+            ]),
             _vm._v(" "),
-            _c("span", [_vm._v("PT")])
+            _c("h6", [_vm._v("Design")])
           ]),
           _vm._v(" "),
-          _c("h6", [_vm._v("Medium Draft")])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "a-project" }, [
-          _c("div", { staticClass: "box-color" }, [
-            _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+          _c("div", { staticClass: "a-project" }, [
+            _c("div", { staticClass: "box-color" }, [
+              _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+              _vm._v(" "),
+              _c("span", [_vm._v("PT")])
+            ]),
             _vm._v(" "),
-            _c("span", [_vm._v("PT")])
+            _c("h6", [_vm._v("Testing")])
           ]),
           _vm._v(" "),
-          _c("h6", [_vm._v("Landing Page")])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "a-project" }, [
-          _c("div", { staticClass: "box-color" }, [
-            _c("img", { attrs: { src: __webpack_require__(/*! ../images/plus.png */ "./resources/js/images/plus.png") } }),
+          _c("div", { staticClass: "a-project" }, [
+            _c("div", { staticClass: "box-color" }, [
+              _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+              _vm._v(" "),
+              _c("span", [_vm._v("PT")])
+            ]),
             _vm._v(" "),
-            _c("span", [_vm._v("PT")])
+            _c("h6", [_vm._v("Medium Draft")])
           ]),
           _vm._v(" "),
-          _c("h6", [_vm._v("Add Project")])
+          _c("div", { staticClass: "a-project" }, [
+            _c("div", { staticClass: "box-color" }, [
+              _c("img", { attrs: { src: __webpack_require__(/*! ../images/overlay.png */ "./resources/js/images/overlay.png") } }),
+              _vm._v(" "),
+              _c("span", [_vm._v("PT")])
+            ]),
+            _vm._v(" "),
+            _c("h6", [_vm._v("Landing Page")])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "a-project" }, [
+            _c("div", { staticClass: "box-color" }, [
+              _c("img", { attrs: { src: __webpack_require__(/*! ../images/plus.png */ "./resources/js/images/plus.png") } }),
+              _vm._v(" "),
+              _c("span", [_vm._v("PT")])
+            ]),
+            _vm._v(" "),
+            _c("h6", [_vm._v("Add Project")])
+          ])
         ])
       ])
     ])
@@ -37827,36 +38088,183 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div", { attrs: { id: "right" } }, [
+    _c("h1", [_vm._v("Development CRM")]),
+    _vm._v(" "),
+    _vm._m(0),
+    _vm._v(" "),
+    _c("p", [
+      _vm._v(
+        "\n    Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in\n    laying out print, graphic or web designs. The passage is attributed to an\n    unknown typesetter in the 15th century who is thought to have scrambled\n    parts of Cicero's De Finibus Bonorum et Malorum for use in a type specimen\n    book.\n  "
+      )
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "tasks" }, [
+      _vm._m(1),
+      _vm._v(" "),
+      _c(
+        "ul",
+        { staticClass: "tasks-list" },
+        _vm._l(_vm.todaytasks, function(task) {
+          return _c("li", { key: task.id }, [
+            _c("div", { staticClass: "info" }, [
+              _c("div", { staticClass: "left" }, [
+                _c("label", { staticClass: "myCheckbox" }, [
+                  _c("input", {
+                    attrs: { type: "checkbox", name: "test" },
+                    domProps: { checked: task.completed },
+                    on: {
+                      change: function($event) {
+                        return _vm.updateTodayTasks(task.taskId)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("span")
+                ]),
+                _vm._v(" "),
+                _c("h4", [_vm._v(_vm._s(task.title))])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "right" }, [
+                _c("img", { attrs: { src: __webpack_require__(/*! ../images/edit.png */ "./resources/js/images/edit.png") } }),
+                _vm._v(" "),
+                _c("img", {
+                  attrs: { src: __webpack_require__(/*! ../images/del.png */ "./resources/js/images/del.png") },
+                  on: {
+                    click: function($event) {
+                      return _vm.deleteTask(task.taskId)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  { class: { inprogress: !_vm.todaytasks.waiting } },
+                  [
+                    _vm._v(
+                      "\n              " +
+                        _vm._s(task.approved ? "Approved" : "In Progress") +
+                        "\n            "
+                    )
+                  ]
+                )
+              ])
+            ])
+          ])
+        }),
+        0
+      )
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "upcoming" }, [
+      _vm._m(2),
+      _vm._v(" "),
+      _c(
+        "form",
+        { attrs: { action: "" }, on: { submit: _vm.addUpcomingTask } },
+        [
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.newTask,
+                expression: "newTask"
+              }
+            ],
+            attrs: { type: "text" },
+            domProps: { value: _vm.newTask },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.newTask = $event.target.value
+              }
+            }
+          })
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "ul",
+        { staticClass: "tasks-list" },
+        _vm._l(_vm.upcoming, function(upcomingtask) {
+          return _c("li", { key: upcomingtask.id }, [
+            _c("div", { staticClass: "info" }, [
+              _c("div", { staticClass: "left" }, [
+                _c("label", { staticClass: "myCheckbox" }, [
+                  _c("input", {
+                    attrs: { type: "checkbox", name: "test" },
+                    domProps: { checked: upcomingtask.completed },
+                    on: {
+                      change: function($event) {
+                        return _vm.checkUpcoming(upcomingtask.taskId)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("span")
+                ]),
+                _vm._v(" "),
+                _c("h4", [_vm._v(_vm._s(upcomingtask.title))])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "right" }, [
+                _c("img", { attrs: { src: __webpack_require__(/*! ../images/edit.png */ "./resources/js/images/edit.png") } }),
+                _vm._v(" "),
+                _c("img", {
+                  attrs: { src: __webpack_require__(/*! ../images/del.png */ "./resources/js/images/del.png") },
+                  on: {
+                    click: function($event) {
+                      return _vm.delUpcoming(upcomingtask.taskId)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _c("button", { class: { inprogress: !_vm.upcoming.waiting } }, [
+                  _vm._v("\n              Waiting\n            ")
+                ])
+              ])
+            ])
+          ])
+        }),
+        0
+      )
+    ])
+  ])
 }
 var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { attrs: { id: "right" } }, [
-      _c("h1", [_vm._v("Development CRM")]),
+    return _c("div", { staticClass: "horizontal" }, [
+      _c("img", { attrs: { src: __webpack_require__(/*! ../images/horizontal.png */ "./resources/js/images/horizontal.png") } })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "add-tasks" }, [
+      _c("h2", [_vm._v("Today's Task")]),
       _vm._v(" "),
-      _c("div", { staticClass: "horizontal" }, [
-        _c("img", { attrs: { src: __webpack_require__(/*! ../images/horizontal.png */ "./resources/js/images/horizontal.png") } })
-      ]),
+      _c("div", { staticClass: "add-action" }, [
+        _c("img", { attrs: { src: __webpack_require__(/*! ../images/add.png */ "./resources/js/images/add.png") } })
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "add-tasks" }, [
+      _c("h2", [_vm._v("Upcoming")]),
       _vm._v(" "),
-      _c("p", [
-        _vm._v(
-          "\n    Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in\n    laying out print, graphic or web designs. The passage is attributed to an\n    unknown typesetter in the 15th century who is thought to have scrambled\n    parts of Cicero's De Finibus Bonorum et Malorum for use in a type specimen\n    book.\n  "
-        )
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "task" }, [
-        _c("div", { staticClass: "add-task" }, [
-          _c("h2", [_vm._v("Today's Task")]),
-          _vm._v(" "),
-          _c("div", { staticClass: "add-action" }, [
-            _c("img", { attrs: { src: __webpack_require__(/*! ../images/add.png */ "./resources/js/images/add.png") } })
-          ])
-        ]),
-        _vm._v(" "),
-        _c("ul", { staticClass: "task-list" })
+      _c("div", { staticClass: "add-action" }, [
+        _c("img", { attrs: { src: __webpack_require__(/*! ../images/add.png */ "./resources/js/images/add.png"), alt: "" } })
       ])
     ])
   }
@@ -50380,6 +50788,28 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports) {
 
 module.exports = "/images/add.png?15af62e0f8f1aa75baf0fcc8ffbe9f3f";
+
+/***/ }),
+
+/***/ "./resources/js/images/del.png":
+/*!*************************************!*\
+  !*** ./resources/js/images/del.png ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/del.png?289ab7111d45cd0b5727ba0abef40715";
+
+/***/ }),
+
+/***/ "./resources/js/images/edit.png":
+/*!**************************************!*\
+  !*** ./resources/js/images/edit.png ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/edit.png?24bc3bf4f0c4e7532bffcffc08399a31";
 
 /***/ }),
 
